@@ -17,7 +17,15 @@ app.post('/repos', function (req, res) {
     if(error) {
       throw error;
     } else {
-      console.log(Array.isArray(JSON.parse(body)));
+      JSON.parse(body).forEach((repo) => {
+        dbConnection.save(repo.id, repo.name, repo.owner.login, repo.forks, (error, product) => {
+          if(error) {
+            console.log(error);
+          } else {
+            console.log('success: ', product)
+          }
+        });
+      })
     }
   })
 

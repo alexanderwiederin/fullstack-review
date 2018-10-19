@@ -17,13 +17,19 @@ let save = (gitId, name, ownerLogin, forks, callback) => {
   // This function should save a repo or repos to
   // the MongoDB
   var repo = new Repo({gitId, name, ownerLogin, forks});
-  repo.save((error, product) => {
-    if(error) {
-      callback(error, null);
-    } else {
-      callback(null, product);
+  
+  Repo.findOne({gitId}, (error, dbRepo) => {
+    if(!dbRepo) {
+      repo.save((error, product) => {
+        if(error) {
+          callback(error, null);
+        } else {
+          callback(null, product)
+        }
+      })
     }
-  });
+  })
+  
 }
 
 module.exports.save = save;
