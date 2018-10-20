@@ -2,34 +2,38 @@ const mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/fetcher');
 
 let repoSchema = mongoose.Schema({
-  // TODO: your schema here!
-  id: Number,
-  gitId: Number,
-  ownerLogin: String,
+  id: {type: Number, unique: true},
   name: String,
   forks: Number,
 });
 
 let Repo = mongoose.model('Repo', repoSchema);
 
-let save = (gitId, name, ownerLogin, forks, callback) => {
-  // TODO: Your code here
-  // This function should save a repo or repos to
-  // the MongoDB
-  var repo = new Repo({gitId, name, ownerLogin, forks});
-  
-  Repo.findOne({gitId}, (error, dbRepo) => {
-    if(!dbRepo) {
-      repo.save((error, product) => {
-        if(error) {
-          callback(error, null);
-        } else {
-          callback(null, product)
-        }
-      })
+let save = (repos, callback) => {
+  Repo.insertMany(repos, (error, docs) => {
+    if(error) {
+      callback(error, null);
+    } else {
+      callback(null, docs)
     }
-  })
-  
+  });
+}
+
+
+let retrieve = (callback) => {
+  Repo.find((error, repos) => {
+    if(error) {
+      console.log('error on retreive');
+      callback(error, null);
+    } else {
+      var sortedRepos = repos.sort((a, b) => {
+        console.log('a', a.forks, 'b', b.forks);
+      return b.forks - a.forks;
+      });
+      callback(null, sortedRepos.slice(0, 26))
+    }
+  });
 }
 
 module.exports.save = save;
+module.exports.retrieve = retrieve;

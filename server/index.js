@@ -9,31 +9,31 @@ app.use(express.static(__dirname + '/../client/dist'));
 app.use(parseBody.text());
 
 app.post('/repos', function (req, res) {
-  // TODO - your code here!
-  // This route should take the github username provided
-  // and get the repo information from the github API, then
-  // save the repo information in the database
   github.getReposByUsername(req.body, (error, response, body) => {
     if(error) {
-      throw error;
+      res.status(500).end();
     } else {
-      JSON.parse(body).forEach((repo) => {
-        dbConnection.save(repo.id, repo.name, repo.owner.login, repo.forks, (error, product) => {
-          if(error) {
-            console.log(error);
-          } else {
-            console.log('success: ', product)
-          }
-        });
+      var repos = JSON.parse(body);
+      dbConnection.save(repos, (error, product) => {
+        if(error) {
+          res.status(500).end();
+        } else {
+          console.log('success: ', product);
+        }
       })
     }
-  })
+  });
 
 });
 
+
 app.get('/repos', function (req, res) {
-  // TODO - your code here!
-  // This route should send back the top 25 repos
+  dbConnection.retrieve((error, repos) => {
+    repos.forEach((repo) => {
+      console.log(repo.forks);
+    })
+    res.send(repos);
+  })
 });
 
 let port = 1128;
