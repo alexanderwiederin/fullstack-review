@@ -23,14 +23,12 @@ let save = (repos, callback) => {
 let retrieve = (callback) => {
   Repo.find((error, repos) => {
     if(error) {
-      console.log('error on retreive');
       callback(error, null);
     } else {
       var sortedRepos = repos.sort((a, b) => {
-        console.log('a', a.forks, 'b', b.forks);
       return b.forks - a.forks;
       });
-      callback(null, sortedRepos.slice(0, 26))
+      callback(null, sortedRepos.slice(0, 25))
     }
   });
 }

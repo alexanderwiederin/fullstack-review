@@ -11,14 +11,14 @@ app.use(parseBody.text());
 app.post('/repos', function (req, res) {
   github.getReposByUsername(req.body, (error, response, body) => {
     if(error) {
-      res.status(500).end();
+      res.status(404).end();
     } else {
       var repos = JSON.parse(body);
       dbConnection.save(repos, (error, product) => {
         if(error) {
           res.status(500).end();
         } else {
-          console.log('success: ', product);
+          res.status(201).send(product).end();
         }
       })
     }
@@ -28,9 +28,9 @@ app.post('/repos', function (req, res) {
 
 
 app.get('/repos', function (req, res) {
+  console.log('received get');
   dbConnection.retrieve((error, repos) => {
     repos.forEach((repo) => {
-      console.log(repo.forks);
     })
     res.send(repos);
   })
